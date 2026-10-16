@@ -12,7 +12,7 @@
 
 ## Owner-selected visual reference
 
-- Owner's screenshot: `ChatGPT Image Oct 14, 2026, 10_48_32 PM.png`, **1672 × 941 pixels** (pixel dimensions inspected).
+- Owner's screenshot: `ChatGPT Image Oct 14, 2026, 10_48_32 PM.png`, **1672 × 941 pixels**, PNG RGBA. **SHA-256:** `7b487a85af32a601ad818d7f8c91c75d583ee7ee59b2078a97213720a12f7438` (original selected file inspected).
 - Look: bright detailed rural-ish anime-fantasy waterfront town; guild in the center, river/harbor at lower right, mountains and stone bridge in the distance. Chibi figures and living city atmosphere.
 - UI: NewLife Quest logo centered top; player status top-left; currency/settings top-right; 3 quick actions on right; expanded chat lower-left; **compact round menu icons lower-right** (not a full-width giant gold bottom navigation).
 - It is a **composite mockup** with HUD and Thai labels baked into the screenshot. Production must split artwork, localizable text, HUD and clickable overlays; **do not ship a screenshot as the final interactive game**.
