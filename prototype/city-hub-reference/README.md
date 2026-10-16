@@ -6,7 +6,7 @@ This is a **standalone coordinate/hotspot QA tool**, not an RPGJS app, deployabl
 
 Open `index.html` in a browser (including `file://`). Its only dependency is `map-data.js` in the same directory. Use the file picker at the top to choose the owner's approved composite screenshot:
 
-`ChatGPT Image Oct 14, 2026, 10_48_32 PM.png` — **1672 × 941** pixels.
+`ChatGPT Image Oct 14, 2026, 10_48_32 PM.png` — **1672 × 941** pixels; SHA-256 `7b487a85af32a601ad818d7f8c91c75d583ee7ee59b2078a97213720a12f7438`.
 
 You may also put a **local-only** copy in this folder as `city-hub-reference.png`; it will load automatically. The PNG is *not* included in GitHub, and the default blank gradient is not game art. The local file should not be confused with a copyright/license-cleared production background.
 
