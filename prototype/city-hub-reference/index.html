@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>NewLife Quest · City Hub Reference Alignment</title>
+<style>
+:root{font-family:system-ui,"Segoe UI",Tahoma,sans-serif;color:#eef4fa;color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:#111c29}
+header{padding:14px clamp(14px,3vw,34px);display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;background:#152739;border-bottom:1px solid #436071}
+h1{font-size:clamp(16px,2vw,23px);margin:0;color:#f7da99}
+.hint{font-size:13px;color:#c6d4df;margin:3px 0 0}
+.controls{display:flex;flex-wrap:wrap;align-items:center;gap:12px;font-size:13px}
+.controls label{display:flex;align-items:center;gap:7px}
+input,select,button{font:inherit}
+input[type=file]{width:175px}
+select,button{color:#fff;border:1px solid #5c7082;border-radius:7px;background:#233a4e;padding:7px 10px}
+button{cursor:pointer}
+button:hover,button:focus-visible{outline:2px solid #eec66b;outline-offset:2px}
+main{padding:14px clamp(8px,2vw,24px) 28px;max-width:1800px;margin:auto}
+.scene{position:relative;aspect-ratio:1672/941;border:2px solid #b38d4d;border-radius:12px;overflow:hidden;background:radial-gradient(circle at 52% 56%,#486a64,#194552 55%,#1a2e3e 90%);box-shadow:0 8px 30px #0007}
+.scene img{width:100%;height:100%;display:block}
+.scene .missing{position:absolute;inset:0;display:grid;place-items:center;text-align:center;padding:24px;font-size:clamp(13px,2vw,22px);color:#f4e6ca;pointer-events:none}
+.scene.has-image .missing{display:none}
+#zones{position:absolute;inset:0;width:100%;height:100%}
+.zone{fill:rgba(245,176,43,0);stroke:rgba(255,224,129,0);stroke-width:4;cursor:pointer;transition:fill .16s,stroke .16s;vector-effect:non-scaling-stroke}
+.zone:hover,.zone:focus,.zone.selected{fill:rgba(251,187,30,.20);stroke:rgba(255,239,149,.94);outline:none}
+.show-zones .zone{fill:rgba(255,190,42,.14);stroke:rgba(255,220,121,.58)}
+.show-zones .zone.selected{fill:rgba(255,191,36,.36);stroke:#ffed96}
+.legend{font-size:13px;line-height:1.5;color:#c7d4de;display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;margin:10px 0 14px}
+.info{border:1px solid #4b6475;background:#1b3042;border-radius:12px;padding:13px 18px;min-height:88px;line-height:1.55}
+.info strong{color:#fce0a0}
+.info code{color:#98d7ed}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(185px,1fr));gap:8px;margin-top:12px}
+.place-button{text-align:left;min-height:45px}
+.place-button[aria-pressed=true]{border-color:#efc66b;background:#4d422b}
+footer{font-size:12px;color:#aec3cf;line-height:1.6;padding-top:16px}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <h1>NewLife Quest · City Hub</h1>
+    <p class="hint">Owner-approved reference, 16 Oct 2026 · 10 illustrated locations · mapping/QA tool only</p>
+  </div>
+  <div class="controls">
+    <label><span id="load-label">โหลดภาพต้นฉบับ</span> <input id="image-file" type="file" accept="image/png,image/jpeg,image/webp"></label>
+    <label><span id="language-label">ภาษา</span>
+      <select id="locale"><option value="th-TH">ไทย</option><option value="en-US">English</option></select>
+    </label>
+    <label><input type="checkbox" id="debug" aria-controls="zones"><span id="debug-label">แสดงพื้นที่กด</span></label>
+  </div>
+</header>
+<main>
+  <div class="scene" id="scene">
+    <img id="art" src="./city-hub-reference.png" alt="" hidden>
+    <div class="missing" id="missing">
+      <div>ภาพต้นฉบับยังไม่ได้อยู่ใน GitHub<br><small>เลือก PNG ที่อนุมัติไว้ด้านบนเพื่อทดสอบพิกัดกับภาพจริง</small></div>
+    </div>
+    <svg id="zones" viewBox="0 0 1672 941" preserveAspectRatio="xMidYMid meet" role="group" aria-label="City Hub building hit regions"></svg>
+  </div>
+  <div class="legend">
+    <span id="scope-note">จุดกดอยู่บนอาคารจริง ไม่ใช่ป้ายชื่อ · แถบแชทซ้ายล่างและเมนูขวาล่างเป็นเขต UI</span>
+    <span id="image-state" role="status">ยังไม่ได้โหลดภาพอ้างอิง</span>
+  </div>
+  <section class="info" id="selection" aria-live="polite">
+    <strong id="selected-title">เลือกสถานที่จากภาพหรือรายการด้านล่าง</strong>
+    <div id="selected-description">พื้นที่กดแสดงชื่อและ Service ID เท่านั้น ยังไม่เชื่อมเกมจริง</div>
+  </section>
+  <section aria-label="City Hub location list" class="grid" id="place-list"></section>
+  <footer id="warning">ภาพตัวอย่างนี้มีข้อความภาษาไทยและ HUD ฝังอยู่แล้ว การเปลี่ยนภาษาในเครื่องมือจะเปลี่ยนชื่อสถานที่ในรายการและคำอธิบาย ไม่ได้แปลข้อความในภาพ ต้องมีงานภาพแยกชั้นสำหรับเกมจริง และต้องตรวจสิทธิ์/เงื่อนไขเข้าดันเจี้ยนจากระบบเกมเดิม</footer>
+</main>
+<script src="./map-data.js"></script>
+<script>
+(() => {
+  "use strict";
+  const map=globalThis.NewLifeCityHubMap;
+  if(!map){document.getElementById('selected-title').textContent='Map data missing';return;}
+  const $=id=>document.getElementById(id);
+  const scene=$('scene'),svg=$('zones'),photo=$('art'),list=$('place-list');
+  const locale=$('locale'),debug=$('debug');
+  const nodes=new Map(),menu=new Map();
+  let chosen='',objectUrl='';
+  const msg={
+    'th-TH':{
+      prompt:'เลือกสถานที่จากภาพหรือรายการด้านล่าง',
+      intro:'พื้นที่กดแสดงชื่อและ Service ID เท่านั้น ยังไม่เชื่อมเกมจริง',
+      loaded:'โหลดภาพต้นฉบับแล้ว',
+      missing:'ยังไม่ได้โหลดภาพอ้างอิง',
+      mismatch:'ขนาดภาพไม่ตรงกับภาพอ้างอิง 1672 × 941',
+      load:'โหลดภาพต้นฉบับ',lang:'ภาษา',hit:'แสดงพื้นที่กด',
+      scope:'จุดกดอยู่บนอาคารจริง ไม่ใช่ป้ายชื่อ · แถบแชทซ้ายล่างและเมนูขวาล่างเป็นเขต UI',
+      select:'สถานที่',state:'สถานะ: จุดกดพร้อมทดสอบ ยังไม่เชื่อมระบบเกม',
+      warning:'ภาพตัวอย่างนี้มีข้อความภาษาไทยและ HUD ฝังอยู่แล้ว การเปลี่ยนภาษาในเครื่องมือจะเปลี่ยนชื่อสถานที่ในรายการและคำอธิบาย ไม่ได้แปลข้อความในภาพ ต้องมีงานภาพแยกชั้นสำหรับเกมจริง และต้องตรวจสิทธิ์/เงื่อนไขเข้าดันเจี้ยนจากระบบเกมเดิม'
+    },
+    'en-US':{
+      prompt:'Choose a building in the image or the list below',
+      intro:'Hotspots display location and service IDs; no game service is wired yet.',
+      loaded:'Reference image loaded',
+      missing:'Reference image not loaded',
+      mismatch:'Image dimensions differ from the 1672 × 941 reference',
+      load:'Load reference PNG',lang:'Language',hit:'Show hit regions',
+      scope:'Hotspots follow actual buildings rather than labels · Chat and compact toolbar have reserved UI space',
+      select:'Location',state:'Status: mapping preview only; gameplay services not connected',
+      warning:'This composite reference has Thai labels and HUD baked in. Switching language changes accessible labels and the details list, not the screenshot. A layered text-free scene asset is required for production; dungeon eligibility must be enforced by the existing game backend.'
+    }
+  };
+  function strings(){return msg[locale.value]||msg['th-TH'];}
+  function displayPlace(place){
+    chosen=place.id;
+    nodes.forEach((node,id)=>node.classList.toggle('selected',id===chosen));
+    menu.forEach((button,id)=>button.setAttribute('aria-pressed',String(id===chosen)));
+    const s=strings();
+    $('selected-title').textContent=s.select+': '+place.names[locale.value];
+    $('selected-description').textContent='ID: '+place.id+' · Service: '+place.serviceId+' · '+s.state;
+  }
+  function refreshLocale(){
+    document.documentElement.lang=locale.value==='th-TH'?'th':'en';
+    const s=strings();
+    $('load-label').textContent=s.load;$('language-label').textContent=s.lang;
+    $('debug-label').textContent=s.hit;$('scope-note').textContent=s.scope;
+    $('warning').textContent=s.warning;
+    if(!chosen){$('selected-title').textContent=s.prompt;$('selected-description').textContent=s.intro;}
+    for(const place of map.places){
+      const name=place.names[locale.value];
+      const zone=nodes.get(place.id);
+      zone.setAttribute('aria-label',name);zone.querySelector('title').textContent=name;
+      menu.get(place.id).textContent=name;
+    }
+    if(chosen)displayPlace(map.places.find(p=>p.id===chosen));
+    showImageState();
+  }
+  function showImageState(){
+    const s=strings();
+    $('image-state').textContent=scene.classList.contains('has-image')
+      ? ((photo.naturalWidth!==map.image.width||photo.naturalHeight!==map.image.height)
+          ? s.mismatch : s.loaded)
+      : s.missing;
+  }
+  for(const place of map.places){
+    const polygon=document.createElementNS('http://www.w3.org/2000/svg','polygon');
+    polygon.setAttribute('points',place.polygon.map(([x,y])=>x+','+y).join(' '));
+    polygon.setAttribute('class','zone');polygon.setAttribute('tabindex','0');
+    polygon.setAttribute('role','button');polygon.setAttribute('data-location-id',place.id);
+    const title=document.createElementNS('http://www.w3.org/2000/svg','title');
+    polygon.append(title);
+    polygon.addEventListener('click',()=>displayPlace(place));
+    polygon.addEventListener('keydown',event=>{
+      if(event.key==='Enter'||event.key===' '){event.preventDefault();displayPlace(place);}
+    });
+    svg.append(polygon);nodes.set(place.id,polygon);
+    const btn=document.createElement('button');btn.type='button';
+    btn.className='place-button';btn.setAttribute('aria-pressed','false');
+    btn.addEventListener('click',()=>{displayPlace(place);nodes.get(place.id).focus();});
+    list.append(btn);menu.set(place.id,btn);
+  }
+  function setPhotoReady(){photo.hidden=false;scene.classList.add('has-image');showImageState();}
+  photo.addEventListener('load',setPhotoReady);
+  photo.addEventListener('error',()=>{photo.hidden=true;scene.classList.remove('has-image');showImageState();});
+  if(photo.complete&&photo.naturalWidth)setPhotoReady();
+  $('image-file').addEventListener('change',event=>{
+    const file=event.target.files?.[0];
+    if(!file)return;
+    if(!file.type.startsWith('image/')){alert('Select an image file');return;}
+    if(objectUrl)URL.revokeObjectURL(objectUrl);
+    objectUrl=URL.createObjectURL(file);
+    photo.src=objectUrl;
+  });
+  window.addEventListener('pagehide',()=>{if(objectUrl)URL.revokeObjectURL(objectUrl);});
+  locale.addEventListener('change',refreshLocale);
+  debug.addEventListener('change',()=>scene.classList.toggle('show-zones',debug.checked));
+  refreshLocale();
+})();
+</script>
+</body>
+</html>
