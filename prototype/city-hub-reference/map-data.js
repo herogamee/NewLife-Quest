@@ -13,6 +13,7 @@
       width: 1672,
       height: 941,
       sourceFilename: "ChatGPT Image Oct 14, 2026, 10_48_32 PM.png",
+      sourceSha256: "7b487a85af32a601ad818d7f8c91c75d583ee7ee59b2078a97213720a12f7438",
       repoAsset: "assets/city-hub/city-hub-reference.png",
       assetCommitted: false,
       containsBakedLabelsAndHUD: true
