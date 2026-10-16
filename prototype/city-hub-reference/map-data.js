@@ -53,7 +53,7 @@
       {
         id: "wedding-chapel", serviceId: "wedding", names: { "th-TH": "โบสถ์วิวาห์", "en-US": "Wedding Chapel" },
         position: "middle-lower-left",
-        polygon: [[467,509],[520,436],[568,377],[647,403],[709,477],[713,623],[635,672],[518,657],[457,605]]
+        polygon: [[467,509],[520,436],[568,377],[621,404],[647,463],[692,505],[705,623],[635,672],[518,657],[457,605]]
       },
       {
         id: "academy", serviceId: "academy", names: { "th-TH": "สำนักศึกษา", "en-US": "Academy" },
