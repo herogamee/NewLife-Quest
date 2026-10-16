@@ -60,3 +60,38 @@ test('high priority central guild, top-right dungeon, and lower-left academy are
   assert.ok(dungeon.x > 1350 && dungeon.y < 330);
   assert.ok(academy.x < 420 && academy.y > 500);
 });
+
+
+function contains(point, polygon) {
+  const [px,py] = point;
+  let inside = false;
+  for (let i=0,j=polygon.length-1;i<polygon.length;j=i++) {
+    const [ax,ay] = polygon[i], [bx,by] = polygon[j];
+    if ((ay>py)!==(by>py) && px<(bx-ax)*(py-ay)/(by-ay)+ax) inside=!inside;
+  }
+  return inside;
+}
+function sampledOverlap(a,b) {
+  const xMin=Math.max(Math.min(...a.map(p=>p[0])),Math.min(...b.map(p=>p[0])));
+  const xMax=Math.min(Math.max(...a.map(p=>p[0])),Math.max(...b.map(p=>p[0])));
+  const yMin=Math.max(Math.min(...a.map(p=>p[1])),Math.min(...b.map(p=>p[1])));
+  const yMax=Math.min(Math.max(...a.map(p=>p[1])),Math.max(...b.map(p=>p[1])));
+  for(let y=Math.ceil(yMin);y<yMax;y+=2)
+    for(let x=Math.ceil(xMin);x<xMax;x+=2)
+      if(contains([x,y],a)&&contains([x,y],b)) return true;
+  return false;
+}
+test('building hit regions cannot overlap each other or the fixed interface reservations', () => {
+  for (let i=0;i<map.places.length;i++){
+    const a=map.places[i];
+    for(let j=i+1;j<map.places.length;j++){
+      const b=map.places[j];
+      assert.ok(!sampledOverlap(a.polygon,b.polygon),a.id+' and '+b.id+' overlap');
+    }
+    for(const reserved of map.uiSafeAreas){
+      const {x,y,width,height}=reserved;
+      const rect=[[x,y],[x+width,y],[x+width,y+height],[x,y+height]];
+      assert.ok(!sampledOverlap(a.polygon,rect),a.id+' intersects '+reserved.id);
+    }
+  }
+});
